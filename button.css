@@ -1,5 +1,6 @@
 a, button {
   font-family: 'Google Sans', sans-serif;
+  text-decoration: none;
   background-color: transparent;
   color: rgb(26,115,232);
   font-weight: 500;
