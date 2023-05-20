@@ -113,11 +113,10 @@ async function listCourses() {
 
   let hwcount = 0;
   const courses_and_hw = await Promise.all(courses.map(async course => {
-    const hw = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(result => JSON.parse(result.body).courseWork),
-          submission = await gapi.client.classroom.courses.courseWork.studentSubmissions.list({courseWorkId: hw.id, courseId: course.id}).then(result => JSON.parse(result.body).studentSubmissions);
+    const hw = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(result => JSON.parse(result.body).courseWork);
 
     progress.innerText = `Loading... Please wait (${++hwcount})`;
-    return {courseObj: course, hwArray: hw, submission: submission[0]};
+    return {courseObj: course, hwArray: hw};
   }));
 
   detailsDiv.removeChild(progress);
@@ -131,8 +130,9 @@ async function listCourses() {
       return;
     }
 
-    for (hw of course.hwArray) {
-      const hwEntry = document.createElement('details'),
+    course.hwArray.forEach(async hw => {
+      const submission = await gapi.client.classroom.courses.courseWork.studentSubmissions.list({courseWorkId: hw.id, courseId: hw.courseId}).then(result => JSON.parse(result.body).studentSubmissions),
+            hwEntry = document.createElement('details'),
             hwInfo = document.createElement('hwInfo');
 
       hwEntry.className = 'hwEntry'
@@ -143,11 +143,11 @@ async function listCourses() {
       hwEntry.innerHTML += `<summary>${hw.title}</summary>`;
 
       let stateText = '';
-      if (hw.submission.state == 'TURNED_IN' && hw.submission.late) {
+      if (submission.state == 'TURNED_IN' && submission.late) {
         stateText = "<p>已完成（遲交）</p>";
-      } else if (hw.submission.state == 'TURNED_IN') {
+      } else if (submission.state == 'TURNED_IN') {
         stateText = "<p style='color: #2e7d32;'>已完成</p>";
-      } else if (hw.submission.late) {
+      } else if (submission.late) {
         stateText = "<p style='color: #d50000;'>欠交</p>";
       } else {
         stateText = "<p style='color: #2e7d32;'>已指派</p>";
@@ -176,7 +176,7 @@ async function listCourses() {
       hwEntry.appendChild(hwInfo);
       hwEntry.innerHTML += '<hr />';
       entry.appendChild(hwEntry);
-    }
+    });
 
     detailsDiv.appendChild(entry);
     detailsDiv.innerHTML += '<hr />';
