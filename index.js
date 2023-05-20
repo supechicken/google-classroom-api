@@ -113,10 +113,11 @@ async function listCourses() {
 
   let hwcount = 0;
   const courses_and_hw = await Promise.all(courses.map(async course => {
-    const hw = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(result => JSON.parse(result.body).courseWork);
+    const hw = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(result => JSON.parse(result.body).courseWork),
+          submission = await gapi.client.classroom.courses.courseWork.studentSubmissions.list({courseWorkId: hw.id, courseId: course.id}).then(result => JSON.parse(result.body).studentSubmissions);
 
     progress.innerText = `Loading... Please wait (${++hwcount})`;
-    return {courseObj: course, hwArray: hw};
+    return {courseObj: course, hwArray: hw, submission: submission[0]};
   }));
 
   detailsDiv.removeChild(progress);
@@ -140,8 +141,21 @@ async function listCourses() {
       console.log('Parsing homework: ', hw);
 
       hwEntry.innerHTML += `<summary>${hw.title}</summary>`;
+
+      let stateText = '';
+      if (hw.submission.state == 'TURNED_IN' && hw.submission.late) {
+        stateText = "<p>已完成（遲交）</p>';
+      } else if (hw.submission.state == 'TURNED_IN') {
+        stateText = "<p style='color: #2e7d32;'>已完成</p>";
+      } else if (hw.submission.late) {
+        stateText = "<p style='color: #d50000;'>欠交</p>";
+      } else {
+        stateText = "<p style='color: #2e7d32;'>已指派</p>";
+      }
+
       hwInfo.innerHTML += `
         <a style='transform: scale(0.8)' href='${hw.alternateLink}'>See details on Google Classroom</a>
+        ${stateText}
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
       `;
