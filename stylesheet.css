@@ -3,11 +3,8 @@
 @import url(./theme.css);
 @import url(./button.css);
 
-html, body {
-  overflow-x: hidden;
-}
-
 html, body, div {
+  overflow-x: hidden;
   margin: 0;
 }
 
@@ -41,13 +38,17 @@ p {
 pre.hwDesc, pre.hwDesc code {
   display: block;
   white-space: pre-wrap;
-  width: calc(100% - 100px);
 }
 
 pre.hwDesc {
+  width: calc(100% - 100px);
   padding: 5px 5px 5px 5px;
   border: 1px solid var(--txt-color);
   border-radius: 5px;
+}
+
+pre.hwDesc code {
+  width: 100%;
 }
 
 #details {
