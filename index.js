@@ -93,7 +93,7 @@ function handleSignoutClick() {
     gapi.client.setToken('');
     document.getElementById('content').innerText = '';
     document.getElementById('authorize_button').innerText = 'Log in with Google account';
-    document.getElementById('signout_button').style.visibility = 'hidden';
+    document.getElementById('signout_button').style.display = 'none';
   }
 }
 
