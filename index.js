@@ -144,7 +144,7 @@ async function listCourses() {
 
       let stateText = '';
       if (hw.submission.state == 'TURNED_IN' && hw.submission.late) {
-        stateText = "<p>已完成（遲交）</p>';
+        stateText = "<p>已完成（遲交）</p>";
       } else if (hw.submission.state == 'TURNED_IN') {
         stateText = "<p style='color: #2e7d32;'>已完成</p>";
       } else if (hw.submission.late) {
