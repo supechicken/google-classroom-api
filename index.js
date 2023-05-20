@@ -106,17 +106,29 @@ async function listCourses() {
   const detailsDiv = document.getElementById('details'),
         progress = document.createElement('h3'),
         coursesResponse = await gapi.client.classroom.courses.list(),
-        courses = coursesResponse.result.courses;
+        courses = coursesResponse.result.courses.filter(c => c.courseState != 'ARCHIVED'); // ignore archived courses to save API quota
 
   detailsDiv.appendChild(progress);
   progress.innerText = 'Loading... Please wait';
 
   let hwcount = 0;
   const courses_and_hw = await Promise.all(courses.map(async course => {
-    const hw = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(result => JSON.parse(result.body).courseWork);
+    const courseWork = await gapi.client.classroom.courses.courseWork.list({ courseId: course.id }).then(r => JSON.parse(r.body).courseWork);
+    let hwArray;
+
+    if (courseWork) {
+      hwArray = await Promise.all(courseWork.map(async hw => {
+        // get submission states of each homework
+        const submission = await gapi.client.classroom.courses.courseWork.studentSubmissions.list({courseWorkId: hw.id, courseId: hw.courseId}).then(r => JSON.parse(r.body).studentSubmissions);
+        hw.submission = submission[0];
+        return hw;
+      }));
+    } else {
+      hwArray = undefined;
+    }
 
     progress.innerText = `Loading... Please wait (${++hwcount})`;
-    return {courseObj: course, hwArray: hw};
+    return {courseObj: course, hwArray: hwArray};
   }));
 
   detailsDiv.removeChild(progress);
@@ -130,9 +142,8 @@ async function listCourses() {
       return;
     }
 
-    course.hwArray.forEach(async hw => {
-      const submission = await gapi.client.classroom.courses.courseWork.studentSubmissions.list({courseWorkId: hw.id, courseId: hw.courseId}).then(result => JSON.parse(result.body).studentSubmissions),
-            hwEntry = document.createElement('details'),
+    for (hw of course.hwArray) {
+      const hwEntry = document.createElement('details'),
             hwInfo = document.createElement('hwInfo');
 
       hwEntry.className = 'hwEntry'
@@ -142,15 +153,15 @@ async function listCourses() {
 
       hwEntry.innerHTML += `<summary>${hw.title}</summary>`;
 
-      let stateText = '';
-      if (submission.state == 'TURNED_IN' && submission.late) {
-        stateText = "<p>已完成（遲交）</p>";
-      } else if (submission.state == 'TURNED_IN') {
-        stateText = "<p style='color: #2e7d32;'>已完成</p>";
-      } else if (submission.late) {
-        stateText = "<p style='color: #d50000;'>欠交</p>";
+      let stateText;
+      if (hw.submission.state == 'TURNED_IN' && hw.submission.late) {
+        stateText = "<p class='hwStatus' style='color: var(--gray)'>已完成（遲交）</p>";
+      } else if (hw.submission.state == 'TURNED_IN') {
+        stateText = "<p class='hwStatus' style='color: var(--green);'>已完成</p>";
+      } else if (hw.submission.late) {
+        stateText = "<p class='hwStatus' style='color: var(--red);'>欠交</p>";
       } else {
-        stateText = "<p style='color: #2e7d32;'>已指派</p>";
+        stateText = "<p class='hwStatus' style='color: var(--green);'>已指派</p>";
       }
 
       hwInfo.innerHTML += `
@@ -176,7 +187,7 @@ async function listCourses() {
       hwEntry.appendChild(hwInfo);
       hwEntry.innerHTML += '<hr />';
       entry.appendChild(hwEntry);
-    });
+    }
 
     detailsDiv.appendChild(entry);
     detailsDiv.innerHTML += '<hr />';
