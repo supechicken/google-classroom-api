@@ -141,9 +141,14 @@ async function listCourses() {
 
       hwEntry.innerHTML += `<summary>${hw.title}</summary>`;
       hwInfo.innerHTML += `
+        <a style='transform: scale(0.8)' href='${hw.alternateLink}'>See details on Google Classroom</a>
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
       `;
+
+      if (hw.materials) {
+        hwInfo.innerHTML += `<p>有 ${hw.materials.length} 個附件</p>`;
+      }
 
       if (hw.dueDate) {
         hwInfo.innerHTML += '<p>Deadline 喺 ' +
