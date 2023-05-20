@@ -15,7 +15,6 @@ console.log('Scopes: ', SCOPES);
 
 let tokenClient, gapiInited = false, gisInited = false;
 
-document.getElementById('authorize_button').style.visibility = 'hidden';
 document.getElementById('signout_button').style.visibility   = 'hidden';
 
 /**
@@ -56,7 +55,9 @@ function gisLoaded() {
  */
 function maybeEnableButtons() {
   if (gapiInited && gisInited) {
-    document.getElementById('authorize_button').style.visibility = 'visible';
+    const btn = document.getElementById('authorize_button');
+    btn.innerText = 'Log in with Google account';
+    btn.removeAttribute('disabled');
   }
 }
 
@@ -92,7 +93,7 @@ function handleSignoutClick() {
     google.accounts.oauth2.revoke(token.access_token);
     gapi.client.setToken('');
     document.getElementById('content').innerText = '';
-    document.getElementById('authorize_button').innerText = 'Authorize';
+    document.getElementById('authorize_button').innerText = 'Log in with Google account';
     document.getElementById('signout_button').style.visibility = 'hidden';
   }
 }
