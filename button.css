@@ -1,0 +1,26 @@
+button {
+  font-family: 'Google Sans', sans-serif;
+  background-color: transparent;
+  color: rgb(26,115,232);
+  font-weight: 500;
+  padding: 10px 20px;
+  display: inline-block;
+  border-radius: 10px;
+  border: 1px solid rgb(218,220,224);
+  opacity: 1;
+  transition: opacity 0.3s;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5e71d212;
+}
+
+button.tone2 {
+  background-color: #1a73e8;
+  color: white;
+}
+
+button.tone2:hover {
+  opacity: 0.9;
+}
