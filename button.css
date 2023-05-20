@@ -1,4 +1,4 @@
-button {
+a, button {
   font-family: 'Google Sans', sans-serif;
   background-color: transparent;
   color: rgb(26,115,232);
@@ -12,15 +12,15 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+a:hover, button:hover {
   background-color: #5e71d212;
 }
 
-button.tone2 {
+a.tone2, button.tone2 {
   background-color: #1a73e8;
   color: white;
 }
 
-button.tone2:hover {
+a.tone2:hover, button.tone2:hover {
   opacity: 0.9;
 }
