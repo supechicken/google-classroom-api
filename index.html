@@ -10,10 +10,11 @@
 
 <body>
   <h1>Classroom API</h1>
-  <a href="https://github.com/supechicken/google-classroom-api">Source code</a>
-  <!--Add buttons to initiate auth sequence and sign out-->
-  <button id="authorize_button" disabled onclick="handleAuthClick()">Loading... Please wait</button>
-  <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+  <div class="horizontal">
+    <a href="https://github.com/supechicken/google-classroom-api">Source code</a>
+    <button id="authorize_button" disabled onclick="handleAuthClick()">Loading... Please wait</button>
+    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+  </div>
 
   <pre id="content" style="white-space: pre-wrap;"></pre>
 

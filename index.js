@@ -14,8 +14,7 @@ const SCOPES = [
 console.log('Scopes: ', SCOPES);
 
 let tokenClient, gapiInited = false, gisInited = false;
-
-document.getElementById('signout_button').style.visibility   = 'hidden';
+document.getElementById('signout_button').style.display = 'none';
 
 /**
  * Callback after api.js is loaded.
@@ -69,7 +68,7 @@ function handleAuthClick() {
     if (resp.error !== undefined) {
       throw (resp);
     }
-    document.getElementById('signout_button').style.visibility = 'visible';
+    document.getElementById('signout_button').style.display = 'inline-block';
     document.getElementById('authorize_button').innerText = 'Refresh';
     await listCourses();
   };
