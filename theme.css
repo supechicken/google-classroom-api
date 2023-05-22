@@ -1,9 +1,10 @@
 :root {
   --bg-color: white;
   --txt-color: black;
-  --green: #39b03f;
+  --green: #329f23;
   --red: #ff3131;
   --gray: #8b8b8b;
+  --yellow: #ffff00;
 }
 
 @media (prefers-color-scheme: dark) {

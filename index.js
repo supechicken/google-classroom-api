@@ -107,6 +107,8 @@ async function listCourses() {
         coursesResponse = await gapi.client.classroom.courses.list(),
         courses = coursesResponse.result.courses.filter(c => c.courseState != 'ARCHIVED'); // ignore archived courses to save API quota
 
+  window.courseInfo = [];
+
   detailsDiv.appendChild(progress);
   progress.innerText = 'Loading... Please wait';
 
@@ -134,12 +136,28 @@ async function listCourses() {
 
   courses_and_hw.forEach(course => {
     const entry = document.createElement('details');
-    entry.innerHTML += `<summary>${course.courseObj.name}</summary>`;
 
     if (!course.hwArray) {
       entry.innerHTML += '<p>呢個課程暫時未有任何功課</p>';
       return;
     }
+
+    courseInfo.push(course.hwArray);
+
+    const hwStatistics   = getCompletedPercentage(course.hwArray),
+          statisticsDiv  = document.createElement('div'),
+          summaryElement = document.createElement('summary'),
+          hwProgressBar  = createHWProgressBar(hwStatistics.percentage);
+
+    statisticsDiv.className = 'statistics';
+    statisticsDiv.innerHTML += `<p>已完成功課進度:</p>`;
+    statisticsDiv.appendChild(hwProgressBar);
+    statisticsDiv.innerHTML += `<p style='width: 45px;'>${hwStatistics.completed}/${hwStatistics.total}</p>`;
+
+    summaryElement.innerHTML += `<img class='ico' src='./down_arrow.svg' /><p>${course.courseObj.name}</p>`;
+    summaryElement.appendChild(statisticsDiv);
+
+    entry.appendChild(summaryElement);
 
     for (hw of course.hwArray) {
       const hwEntry = document.createElement('details'),
@@ -150,22 +168,17 @@ async function listCourses() {
 
       console.log('Parsing homework: ', hw);
 
-      hwEntry.innerHTML += `<summary>${hw.title}</summary>`;
+      const summary = document.createElement('summary');
+      summary.innerHTML += `<img class='ico' src='./down_arrow.svg' /><p>${hw.title}</p>`;
 
-      let stateText;
-      if (hw.submission.state == 'TURNED_IN' && hw.submission.late) {
-        stateText = "<p class='hwStatus' style='color: var(--gray)'>已完成（遲交）</p>";
-      } else if (hw.submission.state == 'TURNED_IN') {
-        stateText = "<p class='hwStatus' style='color: var(--green);'>已完成</p>";
-      } else if (hw.submission.late) {
-        stateText = "<p class='hwStatus' style='color: var(--red);'>欠交</p>";
-      } else {
-        stateText = "<p class='hwStatus' style='color: var(--green);'>已指派</p>";
-      }
+      const hwStatus = getHWStatus(hw),
+            badge = generateHWStatusBadge(hwStatus);
+
+      summary.appendChild(badge);
+      hwEntry.appendChild(summary);
 
       hwInfo.innerHTML += `
         <a style='transform: scale(0.8)' href='${hw.alternateLink}'>See details on Google Classroom</a>
-        ${stateText}
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
       `;
