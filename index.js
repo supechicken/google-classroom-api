@@ -154,7 +154,7 @@ async function listCourses() {
     statisticsDiv.appendChild(hwProgressBar);
     statisticsDiv.innerHTML += `<p style='width: 45px;'>${hwStatistics.completed}/${hwStatistics.total}</p>`;
 
-    summaryElement.innerHTML += `<img class='ico' src='./down_arrow.svg' /><p>${course.courseObj.name}</p>`;
+    summaryElement.innerHTML += `<img class='ico' src='/img/down_arrow.svg' /><p>${course.courseObj.name}</p>`;
     summaryElement.appendChild(statisticsDiv);
 
     entry.appendChild(summaryElement);
@@ -169,7 +169,7 @@ async function listCourses() {
       console.log('Parsing homework: ', hw);
 
       const summary = document.createElement('summary');
-      summary.innerHTML += `<img class='ico' src='./down_arrow.svg' /><p>${hw.title}</p>`;
+      summary.innerHTML += `<img class='ico' src='/img/down_arrow.svg' /><p>${hw.title}</p>`;
 
       const hwStatus = getHWStatus(hw),
             badge = generateHWStatusBadge(hwStatus);
