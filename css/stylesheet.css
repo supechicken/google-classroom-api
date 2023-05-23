@@ -19,12 +19,12 @@ body, .loading_screen {
   flex-direction: column;
 }
 
-body > * {
-  margin: 5px 0 5px 0;
+.loading_screen > h3 {
+  text-align: center;
 }
 
-p, h1, h2, h3 {
-  text-align: center;
+body > * {
+  margin: 5px 0 5px 0;
 }
 
 h1 {
