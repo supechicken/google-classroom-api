@@ -75,19 +75,26 @@ function generateHWStatusBadge(status) {
 
 (new Promise((resolve, _) => window.resolveGoogleLoginPromise = resolve)).then(async () => {
   const detailsDiv = document.getElementById('details'),
-        progress = document.createElement('h3');
+        progress = document.createElement('div'),
+        progressText = document.createElement('h3');
 
   window.courseInfo = [];
+  progress.className = 'loading_screen';
+
+  // loading circle
+  progress.innerHTML += '<div class="loader"></div>';
+
+  progress.appendChild(progressText);
   detailsDiv.appendChild(progress);
 
   console.log('Fetching course list...');
-  progress.innerText = 'Loading... Please wait (Fetching course list)';
+  progressText.innerText = 'Loading... Please wait (Fetching course list)';
 
   const coursesResponse = await gapi.client.classroom.courses.list(),
         courses = coursesResponse.result.courses.filter(c => c.courseState != 'ARCHIVED'); // ignore archived courses to save API quota
 
   console.log('Fetching homework list...');
-  progress.innerText = 'Loading... Please wait (Fetching homework list)';
+  progressText.innerText = 'Loading... Please wait (Fetching homework list)';
 
   const coursesWorkBatch = gapi.client.newBatch();
 
@@ -103,7 +110,7 @@ function generateHWStatusBadge(status) {
   })
 
   console.log('Fetching homework details...');
-  progress.innerText = 'Loading... Please wait (Fetching homework details)';
+  progressText.innerText = 'Loading... Please wait (Fetching homework details)';
 
   const courses_and_hw = await Promise.all(courses.map(async course => {
     const courseWork = course.courseWork;
@@ -146,7 +153,7 @@ function generateHWStatusBadge(status) {
           hwProgressBar  = createHWProgressBar(hwStatistics.percentage);
 
     summaryElement.className = 'course';
-    statisticsDiv.className = 'statistics';
+    statisticsDiv.className  = 'statistics';
     statisticsDiv.appendChild(hwProgressBar);
     statisticsDiv.innerHTML += `<p style='min-width: 45px;'>${hwStatistics.completed}/${hwStatistics.total}</p>`;
 
@@ -176,6 +183,7 @@ function generateHWStatusBadge(status) {
       hwEntry.appendChild(summary);
 
       hwInfoContainer.innerHTML += `
+        <h2>${hw.title}</h2>
         <a href='${hw.alternateLink}'>See details on Google Classroom</a>
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
