@@ -36,6 +36,20 @@ p {
   left: 30px
 }
 
+.hwInfo {
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.hwInfo > div {
+  min-width: 420px;
+}
+
+.hwInfo > div > a {
+  position: relative;
+  left: -28px;
+  transform: scale(0.8);
+}
 pre.hwDesc, pre.hwDesc code {
   display: block;
   white-space: pre-wrap;
@@ -53,7 +67,7 @@ pre.hwDesc code {
 }
 
 #details {
-  height: 70%;
+  height: calc(100% - 200px);
   width: 90%;
   padding: 10px 10px 10px 10px;
   overflow-y: scroll;
@@ -75,13 +89,25 @@ hr {
   display: inline-block;
 }
 
-.statistics {
-  position: absolute;
-  right: 0;
-  width: 400px;
+.horizontal_flex {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-flow: row wrap;
+}
+
+.horizontal_flex > * {
+  margin: 3px 5px 3px 5px;
+}
+
+.statistics {
+  position: absolute;
+  right: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 50%;
 }
 
 .statistics > * {
@@ -101,8 +127,12 @@ summary > * {
   margin: 0 5px 0 0;
 }
 
+summary.course > p {
+  max-width: calc(50vw - 50px);
+}
+
 summary > p {
-  max-width: 80%;
+  max-width: calc(100% - 180px);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

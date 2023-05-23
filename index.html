@@ -4,26 +4,32 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Classroom API</title>
   <link rel="icon" href="/img/icon.png" />
-  <link rel="stylesheet" href="/css/stylesheet.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="/css/theme.css" as="style" onload="this.rel='stylesheet'" />
+  <link rel="preload" href="/css/button.css" as="style" onload="this.rel='stylesheet'" />
+  <link rel="preload" href="/css/progress_bar.css" as="style" onload="this.rel='stylesheet'" />
+  <link rel="preload" href="/css/stylesheet.css" as="style" onload="this.rel='stylesheet'" />
+
+  <title>Classroom API</title>
+
+  <script src="/google_auth.js"></script>
+  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded();"></script>
+  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded();"></script>
+  <script async defer src="/main.js"></script>
 </head>
 
 <body>
   <h1>Classroom API</h1>
-  <div class="horizontal">
+  <div class="horizontal_flex">
     <a href="https://github.com/supechicken/google-classroom-api">Source code</a>
     <button id="authorize_button" disabled onclick="handleAuthClick()">Loading... Please wait</button>
-    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
+    <button id="signout_button" style='display: none;' onclick="handleSignoutClick()">Sign Out</button>
   </div>
 
   <pre id="content" style="white-space: pre-wrap;"></pre>
-
-  <script src="/main.js"></script>
-  <script src="/index.js"></script>
-  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-
   <div id="details"></div>
 </body>
 
