@@ -52,7 +52,7 @@ function gisLoaded() {
 function maybeEnableButtons() {
   if (gapiInited && gisInited) {
     const btn = document.getElementById('authorize_button');
-    btn.innerText = 'Log in with Google account';
+    btn.innerText = 'Login with Google';
     btn.removeAttribute('disabled');
   }
 }
