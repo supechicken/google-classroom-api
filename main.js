@@ -88,13 +88,13 @@ function generateHWStatusBadge(status) {
   detailsDiv.appendChild(progress);
 
   console.log('Fetching course list...');
-  progressText.innerText = 'Loading... Please wait (Fetching course list)';
+  progressText.innerHTML = 'Loading... Please wait<br />(Fetching course list)';
 
   const coursesResponse = await gapi.client.classroom.courses.list(),
         courses = coursesResponse.result.courses.filter(c => c.courseState != 'ARCHIVED'); // ignore archived courses to save API quota
 
   console.log('Fetching homework list...');
-  progressText.innerText = 'Loading... Please wait (Fetching homework list)';
+  progressText.innerHTML = 'Loading... Please wait<br />(Fetching homework list)';
 
   const coursesWorkBatch = gapi.client.newBatch();
 
@@ -110,7 +110,7 @@ function generateHWStatusBadge(status) {
   })
 
   console.log('Fetching homework details...');
-  progressText.innerText = 'Loading... Please wait (Fetching homework details)';
+  progressText.innerHTML = 'Loading... Please wait<br />(Fetching homework details)';
 
   const courses_and_hw = await Promise.all(courses.map(async course => {
     const courseWork = course.courseWork;
