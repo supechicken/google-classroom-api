@@ -233,7 +233,7 @@ async function main() {
 
       hwInfoContainer.insertAdjacentHTML('beforeend', `
         <h2>${hw.title}</h2>
-        <a href='${hw.alternateLink}'>See details on Google Classroom</a>
+        <a href='${hw.alternateLink}'>於 Google Classroom 查看詳情</a>
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
       `);
