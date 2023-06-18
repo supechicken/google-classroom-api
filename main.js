@@ -73,28 +73,32 @@ function generateHWStatusBadge(status) {
   return badge;
 }
 
-(new Promise((resolve, _) => window.resolveGoogleLoginPromise = resolve)).then(async () => {
+window.mainBlock = false;
+
+async function main() {
   const detailsDiv = document.getElementById('details'),
         progress = document.createElement('div'),
         progressText = document.createElement('h3');
 
-  window.courseInfo = [];
+  window.mainBlock = true;
+
+  //window.courseInfo = [];
   progress.className = 'loading_screen';
 
   // loading circle
-  progress.innerHTML += '<div class="loader"></div>';
+  progress.insertAdjacentHTML('beforeend', '<div class="loader"></div>');
 
   progress.appendChild(progressText);
   detailsDiv.appendChild(progress);
 
   console.log('Fetching course list...');
-  progressText.innerHTML = 'Loading... Please wait<br />(Fetching course list)';
+  progressText.innerHTML = 'Loading... Please wait<br />(1/3: Fetching course list)';
 
   const coursesResponse = await gapi.client.classroom.courses.list(),
         courses = coursesResponse.result.courses.filter(c => c.courseState != 'ARCHIVED'); // ignore archived courses to save API quota
 
   console.log('Fetching homework list...');
-  progressText.innerHTML = 'Loading... Please wait<br />(Fetching homework list)';
+  progressText.innerHTML = 'Loading... Please wait<br />(2/3: Fetching homework list)';
 
   const coursesWorkBatch = gapi.client.newBatch();
 
@@ -110,13 +114,28 @@ function generateHWStatusBadge(status) {
   })
 
   console.log('Fetching homework details...');
-  progressText.innerHTML = 'Loading... Please wait<br />(Fetching homework details)';
+  progressText.innerHTML = 'Loading... Please wait<br />(3/3: Fetching homework details)';
 
   const courses_and_hw = await Promise.all(courses.map(async course => {
     const courseWork = course.courseWork;
 
     if (courseWork) {
       const submissionsBatch = gapi.client.newBatch();
+
+      // sort homework by submission date
+      courseWork.sort((a, b) => {
+        let a_date, b_date;
+
+        if (window.sortWithCreationDate) {
+          a_date = new Date(a.creationTime);
+          b_date = new Date(b.creationTime);
+        } else {
+          a_date = new Date(a.dueDate?.year || 9999, a.dueDate?.month || 12, a.dueDate?.day || 31);
+          b_date = new Date(b.dueDate?.year || 9999, b.dueDate?.month || 12, b.dueDate?.day || 31);
+        }
+
+        return (a_date - b_date);
+      });
 
       courseWork.forEach(hw => {
         // get submission states of each homework
@@ -137,15 +156,45 @@ function generateHWStatusBadge(status) {
 
   detailsDiv.removeChild(progress);
 
+  const sortOptionDiv      = document.createElement('div'),
+        sortOptionCheckbox = { label: document.createElement('label'), span: document.createElement('span'), input: document.createElement('input') };
+
+  sortOptionCheckbox.label.className  = 'switch';
+  sortOptionCheckbox.input.type       = 'checkbox';
+  sortOptionCheckbox.span.className   = 'slider round';
+
+  sortOptionDiv.className = 'horizontal_flex';
+  sortOptionDiv.appendChild(document.createTextNode('按截止日期排序'));
+
+  sortOptionCheckbox.input.checked = window.sortWithCreationDate;
+
+  sortOptionCheckbox.input.addEventListener('click', async () => {
+    window.sortWithCreationDate = sortOptionCheckbox.input.checked;
+    detailsDiv.innerHTML = '';
+    console.log(detailsDiv);
+    await new Promise((resolve, _) => setTimeout(() => { if (!window.mainBlock) resolve(); }, 200));
+    main();
+  });
+
+  console.log(sortOptionCheckbox);
+
+  sortOptionCheckbox.label.appendChild(sortOptionCheckbox.input);
+  sortOptionCheckbox.label.appendChild(sortOptionCheckbox.span);
+
+  sortOptionDiv.appendChild(sortOptionCheckbox.label);
+  sortOptionDiv.appendChild(document.createTextNode('按創建日期排序'));
+
+  detailsDiv.appendChild(sortOptionDiv)
+
   courses_and_hw.forEach(course => {
     const entry = document.createElement('details');
 
     if (!course.hwArray) {
-      entry.innerHTML += '<p>呢個課程暫時未有任何功課</p>';
+      entry.insertAdjacentHTML('beforeend', '<p>呢個課程暫時未有任何功課</p>');
       return;
     }
 
-    courseInfo.push(course.hwArray);
+    //courseInfo.push(course.hwArray);
 
     const hwStatistics   = getCompletedPercentage(course.hwArray),
           statisticsDiv  = document.createElement('div'),
@@ -155,9 +204,9 @@ function generateHWStatusBadge(status) {
     summaryElement.className = 'course';
     statisticsDiv.className  = 'statistics';
     statisticsDiv.appendChild(hwProgressBar);
-    statisticsDiv.innerHTML += `<p style='min-width: 45px;'>${hwStatistics.completed}/${hwStatistics.total}</p>`;
+    statisticsDiv.insertAdjacentHTML('beforeend', `<p style='min-width: 45px;'>${hwStatistics.completed}/${hwStatistics.total}</p>`);
 
-    summaryElement.innerHTML += `<img class='ico' src='/img/down_arrow.svg' /><p>${course.courseObj.name}</p>`;
+    summaryElement.insertAdjacentHTML('beforeend', `<img class='ico' src='/img/down_arrow.svg' /><p>${course.courseObj.name}</p>`);
     summaryElement.appendChild(statisticsDiv);
 
     entry.appendChild(summaryElement);
@@ -177,34 +226,38 @@ function generateHWStatusBadge(status) {
       hwInfo.className  = 'hwInfo';
 
       console.log('Parsing homework: ', hw);
-      summary.innerHTML += `<img class='ico' src='/img/down_arrow.svg' /><p>${hw.title}</p>`;
+      summary.insertAdjacentHTML('beforeend', `<img class='ico' src='/img/down_arrow.svg' /><p>${hw.title}</p>`);
 
       summary.appendChild(badge);
       hwEntry.appendChild(summary);
 
-      hwInfoContainer.innerHTML += `
+      hwInfoContainer.insertAdjacentHTML('beforeend', `
         <h2>${hw.title}</h2>
         <a href='${hw.alternateLink}'>See details on Google Classroom</a>
         <p>詳情: </p><pre class='hwDesc'><code>${hw.description || '（冇打）'}</code></pre>
         <p>喺 ${new Date(Date.parse(hw.creationTime)).toLocaleString()} 佈置</p>
-      `;
+      `);
 
-      if (hw.materials) hwInfoContainer.innerHTML += `<p>有 ${hw.materials.length} 個附件</p>`;
+      if (hw.materials) hwInfoContainer.insertAdjacentHTML('beforeend', `<p>有 ${hw.materials.length} 個附件</p>`);
 
       if (hw.dueDate) {
-        hwInfoContainer.innerHTML += '<p>Deadline 喺 ' +
+        hwInfoContainer.insertAdjacentHTML('beforeend', '<p>Deadline 喺 ' +
         `${hw.dueDate.year} 年 ` +
         `${hw.dueDate.month} 月 ` +
         `${hw.dueDate.day} 號 ` +
         `${addZeroPadding(hw.dueTime.hours || 0)} 點 ` +
-        `${addZeroPadding(hw.dueTime.minutes || 0)} 分</p>`;
+        `${addZeroPadding(hw.dueTime.minutes || 0)} 分</p>`);
       }
 
-      hwEntry.innerHTML += '<hr />';
+      hwEntry.insertAdjacentHTML('beforeend', '<hr />');
       entry.appendChild(hwEntry);
     }
 
     detailsDiv.appendChild(entry);
-    detailsDiv.innerHTML += '<hr />';
+    detailsDiv.insertAdjacentHTML('beforeend', '<hr />');
   });
-});
+
+  window.mainBlock = false;
+}
+
+(new Promise((resolve, _) => window.resolveGoogleLoginPromise = resolve)).then(() => main());

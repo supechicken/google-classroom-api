@@ -44,8 +44,7 @@ p {
 }
 
 .hwEntry, .hwInfo {
-  position: relative;
-  left: 30px
+  padding-left: 30px;
 }
 
 .hwInfo {
